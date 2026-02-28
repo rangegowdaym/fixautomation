@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd">
+<suite name="FixAutomation Test Suite" parallel="methods" thread-count="4" verbose="2">
+    <test name="Order Tests">
+        <classes>
+            <class name="com.fixautomation.runner.TestNGRunner"/>
+        </classes>
+    </test>
+</suite>
