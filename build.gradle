@@ -1,0 +1,108 @@
+plugins {
+    id 'java'
+    id 'org.springframework.boot' version '3.3.5'
+    id 'io.spring.dependency-management' version '1.1.7'
+    id 'io.qameta.allure' version '2.12.0'
+}
+
+group = 'com.fixautomation'
+version = '1.0.0'
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_17
+    targetCompatibility = JavaVersion.VERSION_17
+}
+
+repositories {
+    mavenCentral()
+}
+
+ext {
+    cucumberVersion = '7.15.0'
+    allureVersion = '2.25.0'
+    awaitilityVersion = '4.2.0'
+    okHttpVersion = '4.12.0'
+    testNgVersion = '7.9.0'
+}
+
+dependencies {
+    // Spring Boot
+    implementation 'org.springframework.boot:spring-boot-starter'
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+
+    // Cucumber
+    implementation "io.cucumber:cucumber-java:${cucumberVersion}"
+    implementation "io.cucumber:cucumber-spring:${cucumberVersion}"
+    implementation "io.cucumber:cucumber-testng:${cucumberVersion}"
+
+    // TestNG
+    implementation "org.testng:testng:${testNgVersion}"
+
+    // Allure
+    implementation "io.qameta.allure:allure-cucumber7-jvm:${allureVersion}"
+    implementation "io.qameta.allure:allure-testng:${allureVersion}"
+
+    // OkHttp (WebSocket + HTTP)
+    implementation "com.squareup.okhttp3:okhttp:${okHttpVersion}"
+    implementation "com.squareup.okhttp3:logging-interceptor:${okHttpVersion}"
+
+    // Awaitility
+    implementation "org.awaitility:awaitility:${awaitilityVersion}"
+
+    // Jackson
+    implementation 'com.fasterxml.jackson.core:jackson-databind'
+    implementation 'com.fasterxml.jackson.core:jackson-core'
+    implementation 'com.fasterxml.jackson.core:jackson-annotations'
+
+    // Lombok
+    compileOnly 'org.projectlombok:lombok'
+    annotationProcessor 'org.projectlombok:lombok'
+
+    // Logging
+    implementation 'org.slf4j:slf4j-api'
+
+    // Spring Boot Test
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+}
+
+configurations {
+    cucumberRuntime {
+        extendsFrom testImplementation
+    }
+}
+
+sourceSets {
+    test {
+        java {
+            srcDirs = ['src/test/java']
+        }
+        resources {
+            srcDirs = ['src/test/resources']
+        }
+    }
+}
+
+test {
+    useTestNG()
+    systemProperty 'allure.results.directory', 'build/allure-results'
+    systemProperty 'spring.profiles.active', System.getProperty('env', 'dev')
+    testLogging {
+        events 'passed', 'skipped', 'failed'
+        showStandardStreams = true
+    }
+}
+
+allure {
+    version = "${allureVersion}"
+    adapter {
+        aspectjWeaver = true
+        frameworks {
+            testng {
+                enabled = true
+            }
+        }
+    }
+    report {
+        version = "${allureVersion}"
+    }
+}
