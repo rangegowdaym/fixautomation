@@ -8,7 +8,8 @@ import org.testng.annotations.DataProvider;
         features = "src/test/resources/features",
         glue = {
                 "com.fixautomation.steps",
-                "com.fixautomation.hooks"
+                "com.fixautomation.hooks",
+                "com.fixautomation.config"
         },
         plugin = {
                 "pretty",
