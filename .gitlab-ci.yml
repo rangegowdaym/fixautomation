@@ -1,0 +1,140 @@
+---
+# GitLab CI/CD Pipeline for FIX Automation Framework
+# Stages: build → test → allure-report → artifact-upload
+
+stages:
+  - build
+  - test
+  - allure-report
+  - artifact-upload
+
+variables:
+  GRADLE_OPTS: "-Dorg.gradle.daemon=false -Dorg.gradle.caching=false"
+  ALLURE_RESULTS_DIR: "build/allure-results"
+  ALLURE_REPORT_DIR: "build/allure-report"
+  CUCUMBER_REPORTS_DIR: "build/cucumber-reports"
+
+default:
+  image: eclipse-temurin:17-jdk
+  before_script:
+    - chmod +x ./gradlew
+  cache:
+    key: "${CI_COMMIT_REF_SLUG}"
+    paths:
+      - .gradle/
+      - build/
+
+# ── Build Stage ───────────────────────────────────────────────────────────────
+build:
+  stage: build
+  script:
+    - echo "Building FIX Automation Framework..."
+    - ./gradlew clean compileJava compileTestJava --no-daemon
+  artifacts:
+    paths:
+      - build/classes/
+      - build/resources/
+    expire_in: 1 hour
+  only:
+    - merge_requests
+    - main
+    - develop
+
+# ── Test Stage (dev environment) ──────────────────────────────────────────────
+test:dev:
+  stage: test
+  script:
+    - echo "Running tests in DEV environment (FIX disabled)..."
+    - ./gradlew test -Denv=dev --no-daemon
+  artifacts:
+    when: always
+    paths:
+      - "${ALLURE_RESULTS_DIR}/"
+      - "${CUCUMBER_REPORTS_DIR}/"
+      - build/logs/
+    reports:
+      junit: build/test-results/test/*.xml
+    expire_in: 7 days
+  only:
+    - merge_requests
+    - main
+    - develop
+
+# ── Test Stage (qa environment, FIX enabled) ─────────────────────────────────
+test:qa:
+  stage: test
+  script:
+    - echo "Running tests in QA environment..."
+    - ./gradlew test -Denv=qa -Dcucumber.filter.tags="@smoke" --no-daemon
+  artifacts:
+    when: always
+    paths:
+      - "${ALLURE_RESULTS_DIR}/"
+      - "${CUCUMBER_REPORTS_DIR}/"
+      - build/logs/
+    reports:
+      junit: build/test-results/test/*.xml
+    expire_in: 7 days
+  environment:
+    name: qa
+  only:
+    - main
+    - /^release\/.*/
+  when: manual
+
+# ── Test Stage (uat environment) ─────────────────────────────────────────────
+test:uat:
+  stage: test
+  script:
+    - echo "Running smoke tests in UAT environment..."
+    - ./gradlew test -Denv=uat -Dcucumber.filter.tags="@smoke" --no-daemon
+  artifacts:
+    when: always
+    paths:
+      - "${ALLURE_RESULTS_DIR}/"
+      - "${CUCUMBER_REPORTS_DIR}/"
+      - build/logs/
+    reports:
+      junit: build/test-results/test/*.xml
+    expire_in: 14 days
+  environment:
+    name: uat
+  only:
+    - /^release\/.*/
+  when: manual
+
+# ── Allure Report Stage ───────────────────────────────────────────────────────
+allure-report:
+  stage: allure-report
+  image: frankescobar/allure-docker-service:latest
+  script:
+    - echo "Generating Allure report..."
+    - allure generate "${ALLURE_RESULTS_DIR}" -o "${ALLURE_REPORT_DIR}" --clean
+  artifacts:
+    paths:
+      - "${ALLURE_REPORT_DIR}/"
+    expire_in: 30 days
+  dependencies:
+    - test:dev
+  only:
+    - merge_requests
+    - main
+    - develop
+
+# ── Artifact Upload Stage ─────────────────────────────────────────────────────
+artifact-upload:
+  stage: artifact-upload
+  script:
+    - echo "Archiving test artifacts..."
+    - tar -czf test-artifacts.tar.gz
+        "${ALLURE_RESULTS_DIR}/" "${ALLURE_REPORT_DIR}/"
+        "${CUCUMBER_REPORTS_DIR}/" build/logs/ || true
+  artifacts:
+    paths:
+      - test-artifacts.tar.gz
+    expire_in: 90 days
+  dependencies:
+    - allure-report
+  only:
+    - main
+    - /^release\/.*/

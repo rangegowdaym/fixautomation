@@ -1,0 +1,35 @@
+# WebSocket Configuration
+
+websocket:
+  url: ws://localhost:8080/ws/orders
+  ack-timeout-seconds: 10
+
+---
+spring:
+  config:
+    activate:
+      on-profile: qa
+
+websocket:
+  url: ws://qa-host:8080/ws/orders
+  ack-timeout-seconds: 12
+
+---
+spring:
+  config:
+    activate:
+      on-profile: uat
+
+websocket:
+  url: ws://uat-host:8080/ws/orders
+  ack-timeout-seconds: 15
+
+---
+spring:
+  config:
+    activate:
+      on-profile: prod
+
+websocket:
+  url: ws://prod-host:8080/ws/orders
+  ack-timeout-seconds: 20
