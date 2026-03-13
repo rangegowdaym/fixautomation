@@ -96,7 +96,7 @@ public class FixMessageBuilder {
     // ─────────────────────────────────────────────────────────────────────────
 
     public class NewOrderSingleBuilder {
-        private String clOrdId = UUID.randomUUID().toString().replace("-", "").substring(0, 20);
+        private String clOrdId = UUID.randomUUID().toString().replace("-", "");
         private String symbolValue;
         private char sideValue = Side.BUY;
         private double quantityValue;
@@ -196,7 +196,7 @@ public class FixMessageBuilder {
     // ─────────────────────────────────────────────────────────────────────────
 
     public class OrderCancelRequestBuilder {
-        private String clOrdId = UUID.randomUUID().toString().replace("-", "").substring(0, 20);
+        private String clOrdId = UUID.randomUUID().toString().replace("-", "");
         private String origClOrdIdValue;
         private String orderIdValue;
         private String symbolValue;
@@ -264,7 +264,7 @@ public class FixMessageBuilder {
     // ─────────────────────────────────────────────────────────────────────────
 
     public class OrderCancelReplaceBuilder {
-        private String clOrdId = UUID.randomUUID().toString().replace("-", "").substring(0, 20);
+        private String clOrdId = UUID.randomUUID().toString().replace("-", "");
         private String origClOrdIdValue;
         private String symbolValue;
         private char sideValue = Side.BUY;
@@ -342,7 +342,7 @@ public class FixMessageBuilder {
     // ─────────────────────────────────────────────────────────────────────────
 
     public class OrderStatusRequestBuilder {
-        private String clOrdId = UUID.randomUUID().toString().replace("-", "").substring(0, 20);
+        private String clOrdId = UUID.randomUUID().toString().replace("-", "");
         private String symbolValue;
         private char sideValue = Side.BUY;
 

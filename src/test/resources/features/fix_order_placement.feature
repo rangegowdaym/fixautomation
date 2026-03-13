@@ -29,7 +29,8 @@ Feature: FIX Order Placement
   @filled
   Scenario: Send Buy Order and verify it gets Filled
     When I send a NewOrderSingle with symbol "GOOGL" side "BUY" quantity 50 price 175.00
-    Then ExecutionReport status should be "FILLED"
+    Then I should receive an ExecutionReport
+    And ExecutionReport status should be "FILLED"
     And ExecutionReport mandatory fields should be present
     And ExecutionReport ClOrdID should match the sent order
 

@@ -43,6 +43,7 @@ import static org.testng.Assert.assertTrue;
 public class FixOrderStepDefinitions {
 
     private static final Logger log = LogManager.getLogger(FixOrderStepDefinitions.class);
+    private static final double DEFAULT_PRICE = 150.00;
 
     @Autowired
     private TestContext testContext;
@@ -86,7 +87,7 @@ public class FixOrderStepDefinitions {
         FixOrderModel order = new FixOrderModel()
                 .setSymbol(symbol)
                 .setQuantity(quantity)
-                .setPrice(150.00)
+                .setPrice(DEFAULT_PRICE)
                 .setSide("BUY")
                 .setOrdType("LIMIT");
         testContext.setFixOrderModel(order);
@@ -95,7 +96,7 @@ public class FixOrderStepDefinitions {
                 .symbol(symbol)
                 .side("BUY")
                 .quantity(quantity)
-                .price(150.00)
+                .price(DEFAULT_PRICE)
                 .send();
 
         order.setClOrdId(clOrdId);
