@@ -1,0 +1,52 @@
+# FIX Engine Configuration
+# Used by FixConfig and FixSessionManager
+
+fix:
+  enabled: false  # Set to true when a real FIX engine is available
+  config-file: fixmessages/quickfix.cfg
+  response-timeout-seconds: 30
+  poll-interval-millis: 500
+  sender-comp-id: CLIENT
+  target-comp-id: SERVER
+  host: localhost
+  port: 9878
+  begin-string: FIX.4.4
+
+---
+# QA environment override
+spring:
+  config:
+    activate:
+      on-profile: qa
+
+fix:
+  enabled: true
+  host: qa-fix-engine
+  port: 9878
+  response-timeout-seconds: 45
+
+---
+# UAT environment override
+spring:
+  config:
+    activate:
+      on-profile: uat
+
+fix:
+  enabled: true
+  host: uat-fix-engine
+  port: 9878
+  response-timeout-seconds: 60
+
+---
+# Production environment override
+spring:
+  config:
+    activate:
+      on-profile: prod
+
+fix:
+  enabled: true
+  host: prod-fix-engine
+  port: 9878
+  response-timeout-seconds: 90

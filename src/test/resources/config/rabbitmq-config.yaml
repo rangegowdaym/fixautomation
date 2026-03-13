@@ -1,0 +1,71 @@
+# RabbitMQ Management API Configuration
+
+rabbitmq:
+  management:
+    host: http://localhost:15672
+    username: guest
+    password: guest
+    vhost: /
+  request-queue: order-request-queue
+  response-queue: order-response-queue
+
+polling:
+  timeout-seconds: 30
+  interval-millis: 500
+
+---
+spring:
+  config:
+    activate:
+      on-profile: qa
+
+rabbitmq:
+  management:
+    host: http://qa-rabbitmq:15672
+    username: qa_user
+    password: qa_pass
+    vhost: /qa
+  request-queue: order-request-queue
+  response-queue: order-response-queue
+
+polling:
+  timeout-seconds: 45
+  interval-millis: 750
+
+---
+spring:
+  config:
+    activate:
+      on-profile: uat
+
+rabbitmq:
+  management:
+    host: http://uat-rabbitmq:15672
+    username: uat_user
+    password: uat_pass
+    vhost: /uat
+  request-queue: order-request-queue
+  response-queue: order-response-queue
+
+polling:
+  timeout-seconds: 60
+  interval-millis: 1000
+
+---
+spring:
+  config:
+    activate:
+      on-profile: prod
+
+rabbitmq:
+  management:
+    host: http://prod-rabbitmq:15672
+    username: prod_user
+    password: prod_pass
+    vhost: /prod
+  request-queue: order-request-queue
+  response-queue: order-response-queue
+
+polling:
+  timeout-seconds: 90
+  interval-millis: 2000

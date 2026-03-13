@@ -1,20 +1,25 @@
 package com.fixautomation.hooks;
 
 import com.fixautomation.context.TestContext;
+import com.fixautomation.fixclient.FixResponseStore;
+import com.fixautomation.utils.FixMessageLogger;
 import io.cucumber.java.After;
 import io.cucumber.java.Before;
 import io.cucumber.java.Scenario;
 import io.qameta.allure.Allure;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 
 public class CucumberHooks {
 
-    private static final Logger log = LoggerFactory.getLogger(CucumberHooks.class);
+    private static final Logger log = LogManager.getLogger(CucumberHooks.class);
 
     @Autowired
     private TestContext testContext;
+
+    @Autowired
+    private FixResponseStore fixResponseStore;
 
     @Before(order = 0)
     public void beforeScenario(Scenario scenario) {
@@ -55,8 +60,25 @@ public class CucumberHooks {
                         testContext.getOrderResponse().getExecutionType());
                 Allure.addAttachment("OrderResponse", respInfo);
             }
+            if (testContext.getFixClOrdId() != null) {
+                Allure.addAttachment("FIX ClOrdID", testContext.getFixClOrdId());
+            }
+            if (testContext.getFixResponseMessage() != null) {
+                Allure.addAttachment("FIX Response (raw)", FixMessageLogger.toRawString(testContext.getFixResponseMessage()));
+            }
+            if (testContext.getExecutionReportModel() != null) {
+                Allure.addAttachment("ExecutionReport Model", testContext.getExecutionReportModel().toString());
+            }
+            Allure.addAttachment("All FIX Messages", buildAllMessagesLog());
         } catch (Exception e) {
             log.warn("Failed to attach context to Allure report: {}", e.getMessage());
         }
+    }
+
+    private String buildAllMessagesLog() {
+        StringBuilder sb = new StringBuilder();
+        fixResponseStore.getAllMessages().forEach(msg ->
+                sb.append(FixMessageLogger.toRawString(msg)).append("\n"));
+        return sb.toString();
     }
 }
