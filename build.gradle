@@ -2,18 +2,25 @@ plugins {
     id 'java'
     id 'org.springframework.boot' version '3.3.5'
     id 'io.spring.dependency-management' version '1.1.7'
+    id 'io.qameta.allure' version '2.12.0'
 }
 
 group = 'com.fixautomation'
 version = '1.0.0'
 
 java {
-    sourceCompatibility = JavaVersion.VERSION_21
-    targetCompatibility = JavaVersion.VERSION_21
+    sourceCompatibility = JavaVersion.VERSION_17
+    targetCompatibility = JavaVersion.VERSION_17
 }
 
 repositories {
     mavenCentral()
+}
+
+// Exclude Logback to use Log4j2
+configurations.all {
+    exclude group: 'org.springframework.boot', module: 'spring-boot-starter-logging'
+    exclude group: 'ch.qos.logback', module: 'logback-classic'
 }
 
 ext {
@@ -23,12 +30,21 @@ ext {
     okHttpVersion = '4.12.0'
     restAssuredVersion = '6.0.0'
     testNgVersion = '7.9.0'
+    quickfixjVersion = '2.3.1'
+    log4j2Version = '2.23.1'
 }
 
 dependencies {
     // Spring Boot
     implementation 'org.springframework.boot:spring-boot-starter'
     implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'org.springframework.boot:spring-boot-starter-log4j2'
+
+    // YAML configuration support
+    implementation 'org.yaml:snakeyaml'
+
+    // QuickFIX/J - FIX Engine Client
+    implementation "org.quickfixj:quickfixj-all:${quickfixjVersion}"
 
     // Cucumber
     implementation "io.cucumber:cucumber-java:${cucumberVersion}"
@@ -42,7 +58,7 @@ dependencies {
     implementation "io.qameta.allure:allure-cucumber7-jvm:${allureVersion}"
     implementation "io.qameta.allure:allure-testng:${allureVersion}"
 
-    // OkHttp (WebSocket only)
+    // OkHttp (WebSocket + HTTP)
     implementation "com.squareup.okhttp3:okhttp:${okHttpVersion}"
     implementation "com.squareup.okhttp3:logging-interceptor:${okHttpVersion}"
 
@@ -56,13 +72,16 @@ dependencies {
     implementation 'com.fasterxml.jackson.core:jackson-databind'
     implementation 'com.fasterxml.jackson.core:jackson-core'
     implementation 'com.fasterxml.jackson.core:jackson-annotations'
+    implementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-yaml'
 
     // Lombok
     compileOnly 'org.projectlombok:lombok'
     annotationProcessor 'org.projectlombok:lombok'
 
-    // Logging
-    implementation 'org.slf4j:slf4j-api'
+    // Log4j2
+    implementation "org.apache.logging.log4j:log4j-api:${log4j2Version}"
+    implementation "org.apache.logging.log4j:log4j-core:${log4j2Version}"
+    implementation "org.apache.logging.log4j:log4j-slf4j2-impl:${log4j2Version}"
 
     // Spring Boot Test
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
@@ -86,12 +105,24 @@ sourceSets {
 }
 
 test {
-    useTestNG()
+    useTestNG() {
+        suites 'src/test/resources/testng.xml'
+    }
     systemProperty 'allure.results.directory', 'build/allure-results'
     systemProperty 'spring.profiles.active', System.getProperty('env', 'dev')
     testLogging {
         events 'passed', 'skipped', 'failed'
         showStandardStreams = true
+    }
+}
+
+allure {
+    report {
+        version.set("${allureVersion}")
+    }
+    adapter {
+        aspectjVersion.set('1.9.22')
+        autoconfigure.set(true)
     }
 }
 

@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration status="WARN" monitorInterval="30">
+
+    <Properties>
+        <Property name="LOG_DIR">build/logs</Property>
+        <Property name="LOG_PATTERN">%d{yyyy-MM-dd HH:mm:ss.SSS} [%t] %-5level %logger{36} - %msg%n</Property>
+        <Property name="FIX_LOG_PATTERN">%d{yyyy-MM-dd HH:mm:ss.SSS} [%t] %msg%n</Property>
+    </Properties>
+
+    <Appenders>
+        <!-- Console appender for immediate feedback -->
+        <Console name="Console" target="SYSTEM_OUT">
+            <PatternLayout pattern="${LOG_PATTERN}"/>
+        </Console>
+
+        <!-- Rolling file for general framework logs -->
+        <RollingFile name="FrameworkLog"
+                     fileName="${LOG_DIR}/framework.log"
+                     filePattern="${LOG_DIR}/framework-%d{yyyy-MM-dd}-%i.log.gz">
+            <PatternLayout pattern="${LOG_PATTERN}"/>
+            <Policies>
+                <TimeBasedTriggeringPolicy/>
+                <SizeBasedTriggeringPolicy size="20MB"/>
+            </Policies>
+            <DefaultRolloverStrategy max="10"/>
+        </RollingFile>
+
+        <!-- Dedicated FIX message log -->
+        <RollingFile name="FixMessageLog"
+                     fileName="${LOG_DIR}/fix-messages.log"
+                     filePattern="${LOG_DIR}/fix-messages-%d{yyyy-MM-dd}-%i.log.gz">
+            <PatternLayout pattern="${FIX_LOG_PATTERN}"/>
+            <Policies>
+                <TimeBasedTriggeringPolicy/>
+                <SizeBasedTriggeringPolicy size="50MB"/>
+            </Policies>
+            <DefaultRolloverStrategy max="20"/>
+        </RollingFile>
+
+        <!-- Test execution log -->
+        <RollingFile name="TestLog"
+                     fileName="${LOG_DIR}/test-execution.log"
+                     filePattern="${LOG_DIR}/test-execution-%d{yyyy-MM-dd}-%i.log.gz">
+            <PatternLayout pattern="${LOG_PATTERN}"/>
+            <Policies>
+                <TimeBasedTriggeringPolicy/>
+                <SizeBasedTriggeringPolicy size="20MB"/>
+            </Policies>
+            <DefaultRolloverStrategy max="10"/>
+        </RollingFile>
+    </Appenders>
+
+    <Loggers>
+        <!-- FIX message logging -->
+        <Logger name="com.fixautomation.utils.FixMessageLogger" level="INFO" additivity="false">
+            <AppenderRef ref="FixMessageLog"/>
+            <AppenderRef ref="Console"/>
+        </Logger>
+
+        <Logger name="com.fixautomation.fixclient" level="INFO" additivity="false">
+            <AppenderRef ref="FixMessageLog"/>
+            <AppenderRef ref="Console"/>
+        </Logger>
+
+        <Logger name="com.fixautomation.fixbuilder" level="INFO" additivity="false">
+            <AppenderRef ref="FixMessageLog"/>
+            <AppenderRef ref="Console"/>
+        </Logger>
+
+        <!-- Test/step definition logging -->
+        <Logger name="com.fixautomation.steps" level="INFO" additivity="false">
+            <AppenderRef ref="TestLog"/>
+            <AppenderRef ref="Console"/>
+        </Logger>
+
+        <Logger name="com.fixautomation.stepdefinitions" level="INFO" additivity="false">
+            <AppenderRef ref="TestLog"/>
+            <AppenderRef ref="Console"/>
+        </Logger>
+
+        <Logger name="com.fixautomation.hooks" level="INFO" additivity="false">
+            <AppenderRef ref="TestLog"/>
+            <AppenderRef ref="Console"/>
+        </Logger>
+
+        <!-- Framework-wide logging -->
+        <Logger name="com.fixautomation" level="INFO" additivity="false">
+            <AppenderRef ref="FrameworkLog"/>
+            <AppenderRef ref="Console"/>
+        </Logger>
+
+        <!-- QuickFIX/J internal logging -->
+        <Logger name="quickfix" level="WARN" additivity="false">
+            <AppenderRef ref="FixMessageLog"/>
+        </Logger>
+
+        <!-- Spring Boot / third-party libraries -->
+        <Logger name="org.springframework" level="WARN" additivity="false">
+            <AppenderRef ref="FrameworkLog"/>
+        </Logger>
+
+        <Logger name="io.cucumber" level="INFO" additivity="false">
+            <AppenderRef ref="TestLog"/>
+            <AppenderRef ref="Console"/>
+        </Logger>
+
+        <Root level="WARN">
+            <AppenderRef ref="Console"/>
+            <AppenderRef ref="FrameworkLog"/>
+        </Root>
+    </Loggers>
+
+</Configuration>

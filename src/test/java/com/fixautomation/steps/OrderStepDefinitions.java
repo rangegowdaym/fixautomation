@@ -13,8 +13,8 @@ import io.cucumber.java.en.And;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.qameta.allure.Step;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import static org.testng.Assert.assertEquals;
@@ -23,7 +23,7 @@ import static org.testng.Assert.assertTrue;
 
 public class OrderStepDefinitions {
 
-    private static final Logger log = LoggerFactory.getLogger(OrderStepDefinitions.class);
+    private static final Logger log = LogManager.getLogger(OrderStepDefinitions.class);
 
     private static final String DEFAULT_SYMBOL = "AAPL";
     private static final int DEFAULT_QUANTITY = 100;
